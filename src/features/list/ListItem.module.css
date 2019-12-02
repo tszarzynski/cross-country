@@ -1,10 +1,23 @@
 .item {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.draggable {
+  cursor: move;
+}
+
+.label {
+  font-weight: bold;
 }
 
 .delete {
-    margin: 0 0 0 auto;
+  margin: 0 0 0 auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }

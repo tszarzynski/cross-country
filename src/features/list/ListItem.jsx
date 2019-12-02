@@ -1,20 +1,34 @@
 import React from "react";
-import styles from "./ListItem.module.css"
+import styles from "./ListItem.module.css";
+import Icon from "../../components/Icon";
 
-const ListItem = ({ waypoint, index, removeWaypoint, onDragStart, onDragEnd, onDragOver }) => {
-
-
-    return (
-        <li className={styles.item} onDragOver={() => onDragOver(index)}>
-            <div draggable={true}
-                onDragStart={(e) => onDragStart(e, waypoint.id)}
-                onDragEnd={() => onDragEnd()}>
-                <i className="material-icons">drag_handle</i>
-            </div>
-            <span>{waypoint.name}</span>
-            <button className={styles.delete} onClick={() => removeWaypoint(waypoint.id)}>
-                <i className="material-icons" >delete</i></button></li>
-    )
-}
+const ListItem = ({
+  waypoint,
+  index,
+  removeWaypoint,
+  onDragStart,
+  onDragEnd,
+  onDragOver
+}) => {
+  return (
+    <li className={styles.item} onDragOver={e => onDragOver(e, index)}>
+      <div
+        className={styles.draggable}
+        draggable={true}
+        onDragStart={e => onDragStart(e, index)}
+        onDragEnd={e => onDragEnd(e)}
+      >
+        <Icon type="drag_handle" />
+      </div>
+      <div className={styles.label}>{waypoint.name}</div>
+      <button
+        className={styles.delete}
+        onClick={() => removeWaypoint(waypoint.id)}
+      >
+        <Icon type="delete" />
+      </button>
+    </li>
+  );
+};
 
 export default ListItem;

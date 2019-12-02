@@ -1,47 +1,51 @@
-export const initialState = {
-    waypoints: []
+export const Actions = {
+  ADD_WAYPOINT: "AddWaypoint",
+  REMOVE_WAYPOINT: "RemoveWaypoint",
+  UPDATE: "Update"
 };
 
-
-export const Actions = {
-    ADD_WAYPOINT: "AddWaypoint",
-    REMOVE_WAYPOINT: "RemoveWaypoint",
-    UPDATE: "Update"
-}
-
+export const initialState = {
+  waypoints: []
+};
 
 let nextId = 0;
 export const reducer = (state, action) => {
-    console.log(state, action)
-    switch (action.type) {
-        case Actions.ADD_WAYPOINT:
+  console.log(state, action);
+  switch (action.type) {
+    case Actions.ADD_WAYPOINT:
+      const {
+        payload: { coords }
+      } = action;
 
-            const { payload: { coords } } = action;
+      const newWaypoint = {
+        id: ++nextId,
+        name: `Waypoint ${nextId}`,
+        coords
+      };
 
+      return {
+        ...state,
+        waypoints: [...state.waypoints, newWaypoint]
+      };
 
-            const newWaypoint = {
-                id: ++nextId,
-                name: `Waypoint ${nextId}`,
-                coords
-            }
+    case Actions.REMOVE_WAYPOINT:
+      const {
+        payload: { id }
+      } = action;
 
-            return {
-                ...state,
-                waypoints: [...state.waypoints, newWaypoint]
-            };
+      return {
+        ...state,
+        waypoints: state.waypoints.filter(waypoint => waypoint.id !== id)
+      };
 
-        case Actions.REMOVE_WAYPOINT:
-            const { payload: { id } } = action;
+    case Actions.UPDATE:
+      const {
+        payload: { waypoints }
+      } = action;
 
-            return { ...state, waypoints: state.waypoints.filter(waypoint => waypoint.id !== id) }
+      return { ...state, waypoints };
 
-        case Actions.UPDATE:
-            const { payload: { waypoints } } = action;
-
-            return { ...state, waypoints };
-
-
-        default:
-            return state;
-    }
+    default:
+      return state;
+  }
 };

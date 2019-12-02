@@ -1,28 +1,13 @@
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MAPBOX_ACCESS_TOKEN } from "../../config";
 import { Actions } from "../../state";
 import { useStateValue } from "../../state/provider";
 import styles from "./Map.module.css";
+import { makeLayerData } from "./utils";
 
 mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
-
-const makeLayerData = coords => {
-  return {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "LineString",
-          coordinates: coords
-        }
-      }
-    ]
-  };
-};
 
 const Map = () => {
   const mapContainer = useRef(null);
@@ -31,31 +16,31 @@ const Map = () => {
   const [{ waypoints }, dispatch] = useStateValue();
 
   useEffect(() => {
-    if (!waypoints.length) return;
+    // array of waypoints ids
     const waypointIds = waypoints.map(waypoint => waypoint.id);
+    // array of markers ids
     const markerIds = markers.map(marker => marker.id);
 
+    // added waypoints
     const diffAdded = waypointIds.filter(
       waypointId => !markerIds.includes(waypointId)
     );
+
+    //removed waypoints
     const diffRemoved = markerIds.filter(
       markerId => !waypointIds.includes(markerId)
     );
 
-    // if (!(diffAdded.length | diffRemoved.length)) return;
+    console.log("Diff +" + diffAdded.length + " -" + diffRemoved.length);
+    // remove unused markers
+    const markersAfterRemoval = markers.filter(marker => {
+      const shouldRemove = diffRemoved.includes(marker.id);
+      if (shouldRemove) marker.markerRef.remove();
+      return !shouldRemove;
+    });
 
-    console.log("Added: " + diffAdded);
-    console.log("Removed: " + diffRemoved);
-    if (diffRemoved.length) {
-      markers.filter(marker => {
-        const shouldRemove = diffRemoved.includes(marker.id);
-        if (shouldRemove) marker.markerRef.remove();
-
-        return !shouldRemove;
-      });
-    }
-
-    const tempMarkers = waypoints
+    // add new markers
+    const newMarkers = waypoints
       .filter(waypoint => diffAdded.includes(waypoint.id))
       .map(waypoint => {
         var el = document.createElement("div");
@@ -70,32 +55,30 @@ const Map = () => {
         };
       });
 
-    setMarkers(prev => [...prev, ...tempMarkers]);
+    setMarkers([...markersAfterRemoval, ...newMarkers]);
 
-    const routeCoords = waypoints.map(waypoint => [
-      waypoint.coords.lng,
-      waypoint.coords.lat
-    ]);
-    const newData = makeLayerData(routeCoords);
-    map.getSource("trace").setData(newData);
+    // draw route if enough waypoints
+    if (waypoints.length) {
+      const newData = makeLayerData(waypoints);
+      map.getSource("trace").setData(newData);
+    }
   }, [waypoints, map]);
 
-  const handleClick = e => {
-    const { lngLat } = e;
-    dispatch({
-      type: Actions.ADD_WAYPOINT,
-      payload: { coords: lngLat }
-    });
-  };
-
   useLayoutEffect(() => {
+    const handleClick = e => {
+      const { lngLat } = e;
+      dispatch({
+        type: Actions.ADD_WAYPOINT,
+        payload: { coords: lngLat }
+      });
+    };
+
     const initializeMap = () => {
-      console.log("init");
       const opts = {
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
-        center: [0, 0],
-        zoom: 5
+        center: [13.3842189630532, 52.51553727399474],
+        zoom: 10
       };
 
       const map = new mapboxgl.Map(opts);
@@ -114,7 +97,7 @@ const Map = () => {
           type: "line",
           source: "trace",
           paint: {
-            "line-color": "blue",
+            "line-color": "#0F86E8",
             "line-width": 5
           }
         });
@@ -122,7 +105,7 @@ const Map = () => {
     };
 
     if (!map) initializeMap();
-  }, []);
+  }, [map, dispatch]);
 
   return <div ref={mapContainer} className={styles.container} />;
 };

@@ -1,0 +1,18 @@
+.btn {
+  background-color: #c3e452;
+  color: #000000;
+  border: 0;
+  border-radius: 4px;
+  padding: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.84;
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.16;
+}
