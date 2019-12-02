@@ -2,16 +2,17 @@ import React from "react";
 import styles from "./ListItem.module.css";
 import Icon from "../../components/Icon";
 
-const ListItem = ({
+function ListItem({
   waypoint,
   index,
   removeWaypoint,
   onDragStart,
   onDragEnd,
   onDragOver
-}) => {
+}) {
   return (
     <li className={styles.item} onDragOver={e => onDragOver(e, index)}>
+      {/* {`${index}: `} */}
       <div
         className={styles.draggable}
         draggable={true}
@@ -29,6 +30,6 @@ const ListItem = ({
       </button>
     </li>
   );
-};
+}
 
 export default ListItem;

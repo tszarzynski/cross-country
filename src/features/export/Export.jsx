@@ -3,12 +3,14 @@ import Button from "../../components/Button";
 import { useStateValue } from "../../state/provider";
 import { downloadFile, makeGPX } from "./utils";
 
-const Export = () => {
+function Export() {
   const [{ waypoints }] = useStateValue();
   const [canExport, setCanExport] = useState(waypoints.length !== 0);
 
   const handleClick = useCallback(() => {
+    // create GPX file from stored waypoints
     const gpx = makeGPX(waypoints);
+    // trigger file download
     downloadFile("cross-country.gpx", gpx);
   }, [waypoints]);
 
@@ -23,6 +25,6 @@ const Export = () => {
       disabled={!canExport}
     />
   );
-};
+}
 
 export default Export;

@@ -1,14 +1,14 @@
 export const Actions = {
   ADD_WAYPOINT: "AddWaypoint",
   REMOVE_WAYPOINT: "RemoveWaypoint",
-  UPDATE: "Update"
+  UPDATE_WAYPOINTS: "UpdateWaypoints"
 };
 
 export const initialState = {
   waypoints: []
 };
 
-let nextId = 0;
+let nextId = 0; //track waypoint ids
 export const reducer = (state, action) => {
   console.log(state, action);
   switch (action.type) {
@@ -38,7 +38,7 @@ export const reducer = (state, action) => {
         waypoints: state.waypoints.filter(waypoint => waypoint.id !== id)
       };
 
-    case Actions.UPDATE:
+    case Actions.UPDATE_WAYPOINTS:
       const {
         payload: { waypoints }
       } = action;

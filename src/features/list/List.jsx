@@ -4,7 +4,7 @@ import { useStateValue } from "../../state/provider";
 import styles from "./List.module.css";
 import ListItem from "./ListItem";
 
-const List = () => {
+function List() {
   const [{ waypoints }, dispatch] = useStateValue();
   const [items, setItems] = useState([]);
   useEffect(() => {
@@ -22,10 +22,10 @@ const List = () => {
     e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
   };
 
-  const onDragEnd = e => {
+  const onDragEnd = () => {
     setDraggedItem(null);
     // update list order
-    dispatch({ type: Actions.UPDATE, payload: { waypoints: items } });
+    dispatch({ type: Actions.UPDATE_WAYPOINTS, payload: { waypoints: items } });
   };
   const onDragOver = (e, index) => {
     e.preventDefault();
@@ -67,6 +67,6 @@ const List = () => {
       ))}
     </ul>
   );
-};
+}
 
 export default List;

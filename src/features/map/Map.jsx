@@ -9,7 +9,7 @@ import { makeLayerData } from "./utils";
 
 mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-const Map = () => {
+function Map() {
   const mapContainer = useRef(null);
   const [map, setMap] = useState();
   const [markers, setMarkers] = useState([]);
@@ -108,5 +108,5 @@ const Map = () => {
   }, [map, dispatch]);
 
   return <div ref={mapContainer} className={styles.container} />;
-};
+}
 export default Map;
