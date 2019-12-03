@@ -9,16 +9,9 @@ function ListItem({
   onDragStart,
   onDragEnd,
   onDragOver
-  //   onMouseEnter,
-  //   onMouseLeave
 }) {
   return (
-    <li
-      className={styles.item}
-      onDragOver={e => onDragOver(e, waypoint.id)}
-      //   onMouseEnter={e => onMouseEnter(e, waypoint.id)}
-      //   onMouseLeave={e => onMouseLeave(e, waypoint.id)}
-    >
+    <li className={styles.item} onDragOver={e => onDragOver(e, waypoint.id)}>
       <div>{`${index + 1}: `}</div>
       <div
         className={styles.draggable}

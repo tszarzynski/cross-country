@@ -5,12 +5,16 @@ import styles from "./List.module.css";
 import ListItem from "./ListItem";
 
 function List() {
+  // state
   const [{ waypoints }, dispatch] = useStateValue();
+  // rendered items
   const [items, setItems] = useState([]);
   useEffect(() => {
     setItems(waypoints);
   }, [waypoints]);
+  // id of dragged waypoint
   const [draggedItemId, setDraggedItemId] = useState();
+  // update flag
   const [shouldUpdateOrder, setShouldUpdateOrder] = useState(false);
 
   const removeWaypoint = useCallback(
@@ -34,7 +38,6 @@ function List() {
   const onDragOver = useCallback(
     (e, draggedOverId) => {
       e.preventDefault();
-      // Set the dropEffect to move
       e.dataTransfer.dropEffect = "move";
 
       setItems(prevItems => {
@@ -52,26 +55,17 @@ function List() {
           item => item.id === draggedOverId
         );
 
+        const draggedItem = prevItems.find(item => item.id === draggedItemId);
+
         return [
           ...itemsWithoutDragged.slice(0, draggedOverIndex),
-          prevItems.find(item => item.id === draggedItemId),
+          draggedItem,
           ...itemsWithoutDragged.slice(draggedOverIndex)
         ];
       });
     },
     [draggedItemId]
   );
-
-  //   const onMouseEnter = useCallback(
-  //     (e, id) => dispatch({ type: Actions.HIGHLIGHT_WAYPOINT, payload: { id } }),
-  //     [dispatch]
-  //   );
-
-  //   const onMouseLeave = useCallback(
-  //     (e, id) =>
-  //       dispatch({ type: Actions.HIGHLIGHT_WAYPOINT, payload: { id: null } }),
-  //     [dispatch]
-  //   );
 
   useEffect(() => {
     if (shouldUpdateOrder) {
@@ -97,8 +91,6 @@ function List() {
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
           onDragOver={onDragOver}
-          //   onMouseEnter={onMouseEnter}
-          //   onMouseLeave={onMouseLeave}
         />
       ))}
     </ul>

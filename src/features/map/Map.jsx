@@ -10,10 +10,10 @@ import { makeLayerData } from "./utils";
 mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
 function Map() {
+  const [{ waypoints }, dispatch] = useStateValue();
   const mapContainer = useRef(null);
   const [map, setMap] = useState();
   const [markers, setMarkers] = useState([]);
-  const [{ waypoints }, dispatch] = useStateValue();
 
   useLayoutEffect(() => {
     // array of waypoints ids
@@ -37,6 +37,7 @@ function Map() {
       const shouldRemove = diffRemoved.includes(marker.id);
       if (shouldRemove) marker.markerRef.remove();
 
+      // update marker index value
       marker.markerRef.getElement().innerText = index + 1;
 
       return !shouldRemove;
