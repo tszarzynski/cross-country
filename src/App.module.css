@@ -1,6 +1,7 @@
 .container {
   display: flex;
   flex-direction: row;
+  max-height: 100vh;
 }
 
 .leftPane {
@@ -9,11 +10,12 @@
   justify-content: flex-start;
   padding: 16px;
   background-color: #383838;
-  min-width: 320px;
+  flex: 1 1 30%;
+  min-width: 240px;
 }
 
 .rightPane {
-  flex: 1;
+  flex: 1 0 70%;
 }
 
 .toolbar {

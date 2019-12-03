@@ -17,6 +17,7 @@
   font-weight: bold;
 
   animation: fadein 0.3s;
+  backface-visibility: hidden;
 }
 
 @keyframes fadein {

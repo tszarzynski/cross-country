@@ -12,7 +12,6 @@ function ListItem({
 }) {
   return (
     <li className={styles.item} onDragOver={e => onDragOver(e, waypoint.id)}>
-      <div>{`${index + 1}: `}</div>
       <div
         className={styles.draggable}
         draggable={true}
@@ -21,6 +20,7 @@ function ListItem({
       >
         <Icon type="drag_handle" />
       </div>
+      <div className={styles.marker}>{index + 1}</div>
       <div className={styles.label}>{waypoint.name}</div>
       <button
         className={styles.delete}

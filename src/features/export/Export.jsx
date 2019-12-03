@@ -1,11 +1,21 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import Button from "../../components/Button";
 import { useStateValue } from "../../state/provider";
 import { downloadFile, makeGPX } from "./utils";
 
+function useCanExport(waypoints) {
+  const [canExport, setCanExport] = useState();
+
+  useMemo(() => {
+    setCanExport(waypoints.length > 1);
+  }, [waypoints.length]);
+
+  return [canExport];
+}
+
 function Export() {
   const [{ waypoints }] = useStateValue();
-  const [canExport, setCanExport] = useState(waypoints.length !== 0);
+  const [canExport] = useCanExport(waypoints);
 
   const handleClick = useCallback(() => {
     // create GPX file from stored waypoints
@@ -13,10 +23,6 @@ function Export() {
     // trigger file download
     downloadFile("cross-country.gpx", gpx);
   }, [waypoints]);
-
-  useEffect(() => {
-    setCanExport(waypoints.length !== 0);
-  }, [waypoints.length]);
 
   return (
     <Button
