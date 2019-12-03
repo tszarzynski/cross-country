@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Actions } from "../../state";
 import { useStateValue } from "../../state/provider";
 import styles from "./List.module.css";
@@ -12,52 +12,60 @@ function List() {
   }, [waypoints]);
   const [draggedItem, setDraggedItem] = useState();
 
-  const removeWaypoint = id =>
-    dispatch({ type: Actions.REMOVE_WAYPOINT, payload: { id } });
+  const removeWaypoint = useCallback(
+    id => dispatch({ type: Actions.REMOVE_WAYPOINT, payload: { id } }),
+    [dispatch]
+  );
 
-  const onDragStart = (e, index) => {
-    setDraggedItem(waypoints[index]);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/html", e.target.parentNode);
-    e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
-  };
+  const onDragStart = useCallback(
+    (e, id) => {
+      setDraggedItem(items.find(item => item.id === id));
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/html", e.target.parentNode);
+      e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+    },
+    [items]
+  );
 
-  const onDragEnd = () => {
+  const onDragEnd = useCallback(() => {
     setDraggedItem(null);
     // update list order
     dispatch({ type: Actions.UPDATE_WAYPOINTS, payload: { waypoints: items } });
-  };
-  const onDragOver = (e, index) => {
-    e.preventDefault();
-    // Set the dropEffect to move
-    e.dataTransfer.dropEffect = "move";
+  }, [items, dispatch]);
 
-    const draggedOverItem = waypoints[index];
+  const onDragOver = useCallback(
+    (e, id) => {
+      e.preventDefault();
+      // Set the dropEffect to move
+      e.dataTransfer.dropEffect = "move";
 
-    // if the item is dragged over itself, ignore
-    if (draggedItem === draggedOverItem) {
-      return;
-    }
+      const draggedOverItem = items.find(item => item.id === id);
+      const draggedOverIndex = items.findIndex(item => item.id === id);
 
-    // filter out the currently dragged item
-    let items = waypoints.filter(item => item !== draggedItem);
+      // if the item is dragged over itself, ignore
+      if (draggedItem === draggedOverItem) {
+        return;
+      }
 
-    // add the dragged item after the dragged over item
-    items.splice(index, 0, draggedItem);
+      // filter out the currently dragged item
+      let itemsWithoutDragged = items.filter(item => item !== draggedItem);
 
-    setItems(items);
+      // add the dragged item after the dragged over item
+      itemsWithoutDragged.splice(draggedOverIndex, 0, draggedItem);
 
-    return true;
-  };
+      setItems(itemsWithoutDragged);
+    },
+    [draggedItem, items]
+  );
 
   if (!items.length) return <p>Place markers on the map to create route</p>;
 
   return (
     <ul className={styles.container}>
-      {items.map((waypoint, index) => (
+      {items.map(waypoint => (
         <ListItem
-          key={index}
-          index={index}
+          key={waypoint.id}
+          //   index={index}
           waypoint={waypoint}
           removeWaypoint={removeWaypoint}
           onDragStart={onDragStart}

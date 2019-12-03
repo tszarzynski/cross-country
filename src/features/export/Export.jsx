@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Button from "../../components/Button";
 import { useStateValue } from "../../state/provider";
 import { downloadFile, makeGPX } from "./utils";

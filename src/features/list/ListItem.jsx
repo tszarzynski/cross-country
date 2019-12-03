@@ -11,12 +11,11 @@ function ListItem({
   onDragOver
 }) {
   return (
-    <li className={styles.item} onDragOver={e => onDragOver(e, index)}>
-      {/* {`${index}: `} */}
+    <li className={styles.item} onDragOver={e => onDragOver(e, waypoint.id)}>
       <div
         className={styles.draggable}
         draggable={true}
-        onDragStart={e => onDragStart(e, index)}
+        onDragStart={e => onDragStart(e, waypoint.id)}
         onDragEnd={e => onDragEnd(e)}
       >
         <Icon type="drag_handle" />
@@ -32,4 +31,4 @@ function ListItem({
   );
 }
 
-export default ListItem;
+export default React.memo(ListItem);

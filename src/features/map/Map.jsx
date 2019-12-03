@@ -55,14 +55,16 @@ function Map() {
         };
       });
 
-    setMarkers([...markersAfterRemoval, ...newMarkers]);
+    // update markers if necessary
+    if (diffAdded.length | diffRemoved.length)
+      setMarkers([...markersAfterRemoval, ...newMarkers]);
 
     // draw route if enough waypoints
     if (waypoints.length) {
       const newData = makeLayerData(waypoints);
       map.getSource("trace").setData(newData);
     }
-  }, [waypoints, map]);
+  }, [waypoints, map, markers]);
 
   useLayoutEffect(() => {
     const handleClick = e => {

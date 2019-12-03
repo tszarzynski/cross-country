@@ -5,4 +5,4 @@ function Icon({ type }) {
   return <i className={`material-icons ${styles.icon}`}>{type}</i>;
 }
 
-export default Icon;
+export default React.memo(Icon);
