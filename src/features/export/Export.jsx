@@ -27,6 +27,7 @@ function Export() {
   return (
     <Button
       label="Download your route"
+      icon="file_download"
       onClick={handleClick}
       disabled={!canExport}
     />
