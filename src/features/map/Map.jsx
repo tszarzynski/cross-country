@@ -1,6 +1,6 @@
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
 import { MAPBOX_ACCESS_TOKEN } from "../../config";
 import { Actions } from "../../state";
 import { useStateValue } from "../../state/provider";
@@ -15,7 +15,7 @@ function Map() {
   const [map, setMap] = useState();
   const [markers, setMarkers] = useState([]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // array of waypoints ids
     const waypointIds = waypoints.map(waypoint => waypoint.id);
     // array of markers ids
@@ -31,14 +31,18 @@ function Map() {
       markerId => !waypointIds.includes(markerId)
     );
 
-    // console.log("Diff +" + diffAdded.length + " -" + diffRemoved.length);
     // remove unused markers
     const markersAfterRemoval = markers.filter((marker, index) => {
       const shouldRemove = diffRemoved.includes(marker.id);
-      if (shouldRemove) marker.markerRef.remove();
-
-      // update marker index value
-      marker.markerRef.getElement().innerText = index + 1;
+      if (shouldRemove) {
+        //remove
+        marker.markerRef.remove();
+        delete marker.markerRef;
+      } else {
+        // update marker index value to match the order
+        marker.markerRef.getElement().innerText =
+          waypointIds.indexOf(marker.id) + 1;
+      }
 
       return !shouldRemove;
     });
@@ -60,8 +64,10 @@ function Map() {
       });
 
     // update markers if necessary
-    if (diffAdded.length | diffRemoved.length)
+    if (diffAdded.length | diffRemoved.length) {
       setMarkers([...markersAfterRemoval, ...newMarkers]);
+      console.log("Diff +" + diffAdded.length + " -" + diffRemoved.length);
+    }
 
     // draw route if enough waypoints
     if (waypoints.length) {
