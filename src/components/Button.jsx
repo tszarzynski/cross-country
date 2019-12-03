@@ -9,4 +9,4 @@ function Button({ label, onClick, disabled }) {
   );
 }
 
-export default Button;
+export default React.memo(Button);

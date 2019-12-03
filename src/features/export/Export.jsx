@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Button from "../../components/Button";
 import { useStateValue } from "../../state/provider";
 import { downloadFile, makeGPX } from "./utils";
@@ -16,7 +16,7 @@ function Export() {
 
   useEffect(() => {
     setCanExport(waypoints.length !== 0);
-  }, [waypoints]);
+  }, [waypoints.length]);
 
   return (
     <Button

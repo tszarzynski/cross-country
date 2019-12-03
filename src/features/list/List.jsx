@@ -10,67 +10,95 @@ function List() {
   useEffect(() => {
     setItems(waypoints);
   }, [waypoints]);
-  const [draggedItem, setDraggedItem] = useState();
+  const [draggedItemId, setDraggedItemId] = useState();
+  const [shouldUpdateOrder, setShouldUpdateOrder] = useState(false);
 
   const removeWaypoint = useCallback(
     id => dispatch({ type: Actions.REMOVE_WAYPOINT, payload: { id } }),
     [dispatch]
   );
 
-  const onDragStart = useCallback(
-    (e, id) => {
-      setDraggedItem(items.find(item => item.id === id));
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/html", e.target.parentNode);
-      e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
-    },
-    [items]
-  );
+  const onDragStart = useCallback((e, id) => {
+    setDraggedItemId(id);
+
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", e.target.parentNode);
+    e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+  }, []);
 
   const onDragEnd = useCallback(() => {
-    setDraggedItem(null);
-    // update list order
-    dispatch({ type: Actions.UPDATE_WAYPOINTS, payload: { waypoints: items } });
-  }, [items, dispatch]);
+    setDraggedItemId(null);
+    setShouldUpdateOrder(true);
+  }, []);
 
   const onDragOver = useCallback(
-    (e, id) => {
+    (e, draggedOverId) => {
       e.preventDefault();
       // Set the dropEffect to move
       e.dataTransfer.dropEffect = "move";
 
-      const draggedOverItem = items.find(item => item.id === id);
-      const draggedOverIndex = items.findIndex(item => item.id === id);
+      setItems(prevItems => {
+        // if the item is dragged over itself, ignore
+        if (draggedItemId === draggedOverId) {
+          return prevItems;
+        }
 
-      // if the item is dragged over itself, ignore
-      if (draggedItem === draggedOverItem) {
-        return;
-      }
+        // filter out the currently dragged item
+        const itemsWithoutDragged = prevItems.filter(
+          item => item.id !== draggedItemId
+        );
 
-      // filter out the currently dragged item
-      let itemsWithoutDragged = items.filter(item => item !== draggedItem);
+        const draggedOverIndex = prevItems.findIndex(
+          item => item.id === draggedOverId
+        );
 
-      // add the dragged item after the dragged over item
-      itemsWithoutDragged.splice(draggedOverIndex, 0, draggedItem);
-
-      setItems(itemsWithoutDragged);
+        return [
+          ...itemsWithoutDragged.slice(0, draggedOverIndex),
+          prevItems.find(item => item.id === draggedItemId),
+          ...itemsWithoutDragged.slice(draggedOverIndex)
+        ];
+      });
     },
-    [draggedItem, items]
+    [draggedItemId]
   );
+
+  //   const onMouseEnter = useCallback(
+  //     (e, id) => dispatch({ type: Actions.HIGHLIGHT_WAYPOINT, payload: { id } }),
+  //     [dispatch]
+  //   );
+
+  //   const onMouseLeave = useCallback(
+  //     (e, id) =>
+  //       dispatch({ type: Actions.HIGHLIGHT_WAYPOINT, payload: { id: null } }),
+  //     [dispatch]
+  //   );
+
+  useEffect(() => {
+    if (shouldUpdateOrder) {
+      dispatch({
+        type: Actions.UPDATE_WAYPOINTS,
+        payload: { waypoints: items }
+      });
+
+      setShouldUpdateOrder(false);
+    }
+  }, [shouldUpdateOrder, dispatch, items]);
 
   if (!items.length) return <p>Place markers on the map to create route</p>;
 
   return (
     <ul className={styles.container}>
-      {items.map(waypoint => (
+      {items.map((waypoint, index) => (
         <ListItem
           key={waypoint.id}
-          //   index={index}
+          index={index}
           waypoint={waypoint}
           removeWaypoint={removeWaypoint}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
           onDragOver={onDragOver}
+          //   onMouseEnter={onMouseEnter}
+          //   onMouseLeave={onMouseLeave}
         />
       ))}
     </ul>

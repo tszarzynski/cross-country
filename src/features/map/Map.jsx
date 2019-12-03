@@ -1,6 +1,6 @@
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { MAPBOX_ACCESS_TOKEN } from "../../config";
 import { Actions } from "../../state";
 import { useStateValue } from "../../state/provider";
@@ -15,7 +15,7 @@ function Map() {
   const [markers, setMarkers] = useState([]);
   const [{ waypoints }, dispatch] = useStateValue();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // array of waypoints ids
     const waypointIds = waypoints.map(waypoint => waypoint.id);
     // array of markers ids
@@ -31,11 +31,14 @@ function Map() {
       markerId => !waypointIds.includes(markerId)
     );
 
-    console.log("Diff +" + diffAdded.length + " -" + diffRemoved.length);
+    // console.log("Diff +" + diffAdded.length + " -" + diffRemoved.length);
     // remove unused markers
-    const markersAfterRemoval = markers.filter(marker => {
+    const markersAfterRemoval = markers.filter((marker, index) => {
       const shouldRemove = diffRemoved.includes(marker.id);
       if (shouldRemove) marker.markerRef.remove();
+
+      marker.markerRef.getElement().innerText = index + 1;
+
       return !shouldRemove;
     });
 
