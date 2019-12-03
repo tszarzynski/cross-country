@@ -68,13 +68,15 @@ function Map() {
       setMarkers([...markersAfterRemoval, ...newMarkers]);
       console.log("Diff +" + diffAdded.length + " -" + diffRemoved.length);
     }
+  }, [waypoints, map, markers]);
 
+  useLayoutEffect(() => {
     // draw route if enough waypoints
     if (waypoints.length) {
       const newData = makeLayerData(waypoints);
       map.getSource("trace").setData(newData);
     }
-  }, [waypoints, map, markers]);
+  }, [waypoints, map]);
 
   useLayoutEffect(() => {
     const handleClick = e => {
