@@ -1,6 +1,12 @@
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from "react";
 import { MAPBOX_ACCESS_TOKEN } from "../../config";
 import { Actions } from "../../state";
 import { useStateValue } from "../../state/provider";
@@ -15,68 +21,76 @@ function Map() {
   const [map, setMap] = useState();
   const [markers, setMarkers] = useState([]);
 
+  const onDragEnd = useCallback(
+    (e, id) => {
+      dispatch({
+        type: Actions.UPDATE_WAYPOINT,
+        payload: { id, coords: e.target.getLngLat() }
+      });
+    },
+    [dispatch]
+  );
+
+  const onDrag = useCallback(() => {
+    // force markers redraw
+    setMarkers(prev => [...prev]);
+  }, []);
+
   useEffect(() => {
-    // array of waypoints ids
-    const waypointIds = waypoints.map(waypoint => waypoint.id);
-    // array of markers ids
-    const markerIds = markers.map(marker => marker.id);
+    // make new marker from waypoint
+    function makeMarker(waypoint, index) {
+      var el = document.createElement("div");
+      el.className = styles.marker;
+      el.innerText = index + 1;
 
-    // added waypoints
-    const diffAdded = waypointIds.filter(
-      waypointId => !markerIds.includes(waypointId)
-    );
+      const marker = new mapboxgl.Marker({ element: el, draggable: true })
+        .setLngLat(waypoint.coords)
+        .addTo(map);
 
-    //removed waypoints
-    const diffRemoved = markerIds.filter(
-      markerId => !waypointIds.includes(markerId)
-    );
+      marker.on("dragend", e => onDragEnd(e, waypoint.id));
+      marker.on("drag", e => onDrag(e, waypoint.id));
 
-    // remove unused markers
-    const markersAfterRemoval = markers.filter((marker, index) => {
-      const shouldRemove = diffRemoved.includes(marker.id);
-      if (shouldRemove) {
-        //remove
-        marker.markerRef.remove();
-        delete marker.markerRef;
-      } else {
-        // update marker index value to match the order
-        marker.markerRef.getElement().innerText =
-          waypointIds.indexOf(marker.id) + 1;
-      }
+      return {
+        id: waypoint.id,
+        markerRef: marker
+      };
+    }
 
-      return !shouldRemove;
-    });
+    setMarkers(prev => {
+      // create markers for waypoints, but reuse existing ones
+      const newMarkers = waypoints.map((waypoint, index) => {
+        const existingMarker = prev.find(marker => marker.id === waypoint.id);
 
-    // add new markers
-    const newMarkers = waypoints
-      .filter(waypoint => diffAdded.includes(waypoint.id))
-      .map(waypoint => {
-        var el = document.createElement("div");
-        el.className = styles.marker;
-        el.innerText = waypoint.id;
-
-        return {
-          id: waypoint.id,
-          markerRef: new mapboxgl.Marker(el)
-            .setLngLat(waypoint.coords)
-            .addTo(map)
-        };
+        if (existingMarker) {
+          existingMarker.markerRef.getElement().innerText = index + 1;
+          return existingMarker;
+        } else {
+          return makeMarker(waypoint, index);
+        }
       });
 
-    // update markers if necessary
-    if (diffAdded.length | diffRemoved.length) {
-      setMarkers([...markersAfterRemoval, ...newMarkers]);
-      console.log("Diff +" + diffAdded.length + " -" + diffRemoved.length);
-    }
-  }, [waypoints, map, markers]);
+      const newMarkerIds = newMarkers.map(marker => marker.id);
+
+      // remove unused markers from map
+      prev
+        .filter(marker => !newMarkerIds.includes(marker.id))
+        .forEach(markerToRemove => markerToRemove.markerRef.remove());
+
+      return newMarkers;
+    });
+  }, [waypoints, map, onDrag, onDragEnd]);
 
   useLayoutEffect(() => {
-    // draw route if enough waypoints
-    if (waypoints.length) {
-      const newData = makeLayerData(waypoints);
+    function update() {
+      // console.log("redraw trace");
+      const newData = makeLayerData(markers);
       map.getSource("trace").setData(newData);
     }
-  }, [waypoints, map]);
+    // draw route if enough waypoints
+    if (markers.length) {
+      requestAnimationFrame(update);
+    }
+  }, [markers, map]);
 
   useLayoutEffect(() => {
     const handleClick = e => {
@@ -90,7 +104,7 @@ function Map() {
     const initializeMap = () => {
       const opts = {
         container: mapContainer.current,
-        style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
+        style: "mapbox://styles/mapbox/streets-v11?optimize=true", // stylesheet location
         center: [13.3842189630532, 52.51553727399474],
         zoom: 10
       };

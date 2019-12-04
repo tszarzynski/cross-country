@@ -1,6 +1,8 @@
 export const Actions = {
   ADD_WAYPOINT: "AddWaypoint",
   REMOVE_WAYPOINT: "RemoveWaypoint",
+
+  UPDATE_WAYPOINT: "UpdateWaypoint",
   UPDATE_WAYPOINTS: "UpdateWaypoints"
 };
 
@@ -38,6 +40,18 @@ export const reducer = (state, action) => {
         waypoints: state.waypoints.filter(waypoint => waypoint.id !== id)
       };
 
+    case Actions.UPDATE_WAYPOINT: {
+      const {
+        payload: { id, coords }
+      } = action;
+
+      return {
+        ...state,
+        waypoints: state.waypoints.map(waypoint =>
+          waypoint.id === id ? { ...waypoint, coords } : waypoint
+        )
+      };
+    }
     case Actions.UPDATE_WAYPOINTS:
       const {
         payload: { waypoints }

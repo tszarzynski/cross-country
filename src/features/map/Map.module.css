@@ -18,6 +18,7 @@
 
   animation: fadein 0.3s;
   backface-visibility: hidden;
+  cursor: move;
 }
 
 @keyframes fadein {

@@ -1,1 +1,2 @@
-export const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1hc3oiLCJhIjoiY2sybTgzeDk2MGF3NjNvbzJ5dXowNWV0aSJ9.GX4rQuB9HwauizIOBaa3HA"
+export const MAPBOX_ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+console.log(MAPBOX_ACCESS_TOKEN);
