@@ -46,6 +46,7 @@ export function makeGPX(waypoints) {
   gpxElem.appendChild(trkElem);
   doc.appendChild(gpxElem);
 
+  // serialize
   const serializer = new XMLSerializer();
   const xmlString = serializer.serializeToString(doc);
 

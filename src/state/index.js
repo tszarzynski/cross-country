@@ -1,7 +1,6 @@
 export const Actions = {
   ADD_WAYPOINT: "AddWaypoint",
   REMOVE_WAYPOINT: "RemoveWaypoint",
-
   UPDATE_WAYPOINT: "UpdateWaypoint",
   UPDATE_WAYPOINTS: "UpdateWaypoints"
 };

@@ -16,11 +16,14 @@ import { makeLayerData } from "./utils";
 mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
 function Map() {
+  // state
   const [{ waypoints }, dispatch] = useStateValue();
   const mapContainer = useRef(null);
   const [map, setMap] = useState();
+  // map markers
   const [markers, setMarkers] = useState([]);
 
+  // marker "dragend" event handler
   const onDragEnd = useCallback(
     (e, id) => {
       dispatch({
@@ -31,6 +34,7 @@ function Map() {
     [dispatch]
   );
 
+  // marker "drag" event handler
   const onDrag = useCallback(() => {
     // force markers redraw
     setMarkers(prev => [...prev]);
@@ -62,6 +66,7 @@ function Map() {
         const existingMarker = prev.find(marker => marker.id === waypoint.id);
 
         if (existingMarker) {
+          // update marker displayed index value to reflect current order
           existingMarker.markerRef.getElement().innerText = index + 1;
           return existingMarker;
         } else {
@@ -82,7 +87,7 @@ function Map() {
 
   useLayoutEffect(() => {
     function update() {
-      // console.log("redraw trace");
+      // create new data to draw updated route
       const newData = makeLayerData(markers);
       map.getSource("trace").setData(newData);
     }

@@ -20,6 +20,7 @@ function List() {
     [dispatch]
   );
 
+  // "dragstart" event handler for list items
   const onDragStart = useCallback((e, id) => {
     setDraggedItemId(id);
 
@@ -28,6 +29,7 @@ function List() {
     e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
   }, []);
 
+  // "dragend" event handler for list items
   const onDragEnd = useCallback(() => {
     setDraggedItemId(null);
 
@@ -37,6 +39,7 @@ function List() {
     });
   }, [items, dispatch]);
 
+  // "dragover" event handler for list items
   const onDragOver = useCallback(
     (e, draggedOverId) => {
       e.preventDefault();
@@ -59,7 +62,7 @@ function List() {
 
         const draggedItem = prevItems.find(item => item.id === draggedItemId);
 
-        // update items
+        // update items reflecting the curent items order
         return [
           ...itemsWithoutDragged.slice(0, draggedOverIndex),
           draggedItem,
