@@ -12,7 +12,6 @@ export const initialState = {
 
 let nextId = 0; //track waypoint ids
 export const reducer = (state, action) => {
-  console.log(state, action);
   switch (action.type) {
     case Actions.ADD_WAYPOINT:
       const {
