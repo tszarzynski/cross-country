@@ -14,8 +14,6 @@ function List() {
   }, [waypoints]);
   // id of dragged waypoint
   const [draggedItemId, setDraggedItemId] = useState();
-  // update flag
-  const [shouldUpdateOrder, setShouldUpdateOrder] = useState(false);
 
   const removeWaypoint = useCallback(
     id => dispatch({ type: Actions.REMOVE_WAYPOINT, payload: { id } }),
@@ -32,8 +30,12 @@ function List() {
 
   const onDragEnd = useCallback(() => {
     setDraggedItemId(null);
-    setShouldUpdateOrder(true);
-  }, []);
+
+    dispatch({
+      type: Actions.UPDATE_WAYPOINTS,
+      payload: { waypoints: items }
+    });
+  }, [items, dispatch]);
 
   const onDragOver = useCallback(
     (e, draggedOverId) => {
@@ -57,6 +59,7 @@ function List() {
 
         const draggedItem = prevItems.find(item => item.id === draggedItemId);
 
+        // update items
         return [
           ...itemsWithoutDragged.slice(0, draggedOverIndex),
           draggedItem,
@@ -66,17 +69,6 @@ function List() {
     },
     [draggedItemId]
   );
-
-  useEffect(() => {
-    if (shouldUpdateOrder) {
-      dispatch({
-        type: Actions.UPDATE_WAYPOINTS,
-        payload: { waypoints: items }
-      });
-
-      setShouldUpdateOrder(false);
-    }
-  }, [shouldUpdateOrder, dispatch, items]);
 
   if (!items.length) return <p>Place markers on the map to create route</p>;
 
